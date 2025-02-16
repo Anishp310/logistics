@@ -1,155 +1,125 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TextField, Button, Grid, Container, Card, CardContent, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
 import SummaryApi from '../../../API/BackendApi';
-import { useNavigate } from 'react-router-dom';
+import Header from '../../common/Header';
+import ComponentTable from '../../common/ComponentTable';
 
 export default function ProductNature() {
   const [natures, setNatures] = useState([]);
   const [newNature, setNewNature] = useState('');
-  const [userId, setUserId] = useState(''); // Assuming the user ID is available
-
-
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
+  // Fetch all Natures from the API
+  const getNatures = useCallback(async () => {
+    try {
+      const response = await fetch(SummaryApi.getAllNatures.url, { method: 'GET' });
+      if (!response.ok) throw new Error('Failed to fetch Natures');
+      const data = await response.json();
+      setNatures(data);
+    } catch (error) {
+      console.error('Error fetching Natures:', error);
+    }
+  }, []);
+
+  // Fetch user details
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("User");
+    const storedUser = sessionStorage.getItem('User');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
   }, []);
-  // Fetch all natures from the API
-  const getNatures = useCallback(async () => {
-    try {
-      const response = await fetch(SummaryApi.getAllNatures.url);
-      if (!response.ok) throw new Error('Failed to fetch natures');
-      const data = await response.json();
-      console.log(data)
-      setNatures(data);
-    } catch (error) {
-      console.error('Error fetching natures:', error);
-    }
-  }, []);
 
-  // Handle adding a new nature
+  // Handle adding a new Nature
   const handleAddNature = async (e) => {
-
-    let userId = user._id
-
     e.preventDefault();
+    const userIdFromState = user._id;
     try {
       const response = await fetch(SummaryApi.createNature.url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newNature, user_id: userId }),  // Include user_id
+        body: JSON.stringify({ name: newNature, user_id: userIdFromState }),  // Include user_id
       });
-      if (!response.ok) throw new Error('Failed to create nature');
+      if (!response.ok) throw new Error('Failed to create Nature');
       setNewNature('');
-      getNatures(); // Refresh natures
+      getNatures(); // Refresh Natures
     } catch (error) {
-      console.error('Error adding nature:', error);
+      console.error('Error adding Nature:', error);
     }
   };
 
-  // Handle deleting a nature
+  // Handle deleting a Nature
   const handleDeleteNature = async (id) => {
-    console.log(id)
     try {
       const response = await fetch(SummaryApi.deleteNature.url(id), { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete nature');
-      getNatures(); // Refresh natures
+      if (!response.ok) throw new Error('Failed to delete Nature');
+      getNatures(); // Refresh Natures
     } catch (error) {
-      console.error('Error deleting nature:', error);
+      console.error('Error deleting Nature:', error);
     }
   };
 
-  // Handle editing a nature
+  // Handle editing a Nature
   const handleEditNature = async (id, updatedName) => {
     try {
       const response = await fetch(SummaryApi.updateNature(id).url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: updatedName, user_id: userId }),  // Include user_id
+        body: JSON.stringify({ name: updatedName, user_id: user._id }),  // Include user_id
       });
-      if (!response.ok) throw new Error('Failed to update nature');
-      getNatures(); // Refresh natures
+      if (!response.ok) throw new Error('Failed to update Nature');
+      getNatures(); // Refresh Natures
     } catch (error) {
-      console.error('Error updating nature:', error);
+      console.error('Error updating Nature:', error);
     }
   };
 
   useEffect(() => {
     getNatures();
-    // Set userId based on your app's user authentication flow
   }, [getNatures]);
 
-  return (
-    <Container>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>Create Nature</Typography>
-          <form onSubmit={handleAddNature}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={8}>
-                <TextField
-                  fullWidth
-                  value={newNature}
-                  onChange={(e) => setNewNature(e.target.value)}
-                  label="Nature Name"
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button variant="contained" color="primary" type="submit" fullWidth>
-                  Add Nature
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
+  const columns = [
+    { name: 'ID', selector: (row) => row._id, sortable: true, width: '200px' },
+    { name: 'User ID', selector: (row) => row.user_id, sortable: true, width: '200px' },
+    { name: 'Name', selector: (row) => row.name, sortable: true, width: '250px' },
+    { name: 'Actions', selector: (row) => (
+      <div>
+        <button onClick={() => handleDeleteNature(row._id)} className="bg-red-500 text-white px-4 py-2 rounded-md">Delete</button>
+      </div>
+    ), width: '150px' },
+  ];
 
-      <Box mt={4}>
-        <Typography variant="h6" gutterBottom>Natures</Typography>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>User_Id</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {natures.map((nature) => (
-                <TableRow key={nature._id}>
-                  <TableCell>{nature._id}</TableCell>
-                  <TableCell>{nature.user_id}</TableCell>
-                  <TableCell>{nature.name}</TableCell>
-                  <TableCell>
-                    {/* <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => handleEditNature(nature._id, nature.name)}
-                      style={{ marginRight: 10 }}
-                    >
-                      Edit
-                    </Button> */}
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      onClick={() => handleDeleteNature(nature._id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    </Container>
+  return (
+    <div className="p-4 m-4 bg-gray-100 rounded-lg shadow-lg">
+      <Header heading="Product Nature Management" />
+
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+        <h2 className="text-xl font-semibold text-center mb-4">Create Nature</h2>
+        <form onSubmit={handleAddNature}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nature Name</label>
+              <input
+                type="text"
+                value={newNature}
+                onChange={(e) => setNewNature(e.target.value)}
+                placeholder="Enter Nature Name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              />
+            </div>
+            <div className="col-span-1 flex items-center justify-center md:mt-6">
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              >
+                Add Nature
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h2 className="text-2xl font-semibold text-center mb-4">Natures List</h2>
+
+      <ComponentTable data={natures} columns={columns} />
+    </div>
   );
 }

@@ -1,31 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { styled } from '@mui/material/styles';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { Box, Typography, Button, Grid, TextField, Select, MenuItem, FormControl, InputLabel, Card, CardContent } from '@mui/material';
 import SummaryApi from '../../../../API/BackendApi';
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    fontWeight: 'bold',
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
+import ComponentTable from '../../../common/ComponentTable';
+import Header from '../../../common/Header';  // Import the Header component
 
 export default function User() {
   const [rows, setRows] = useState([]);
@@ -33,6 +9,7 @@ export default function User() {
   const [userId, setUserId] = useState('');
   const [user, setUser] = useState(null);
 
+  // Fetch all users and set them to rows state
   const getAllUsers = useCallback(async () => {
     try {
       const response = await fetch(SummaryApi.getAllUsers.url, {
@@ -53,12 +30,9 @@ export default function User() {
     }
   }, []);
 
-
-
   useEffect(() => {
     getAllUsers();
   }, [getAllUsers,rows]);
-
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem("User");
@@ -69,96 +43,81 @@ export default function User() {
 
   const handleUpdateRole = async (event) => {
     event.preventDefault();
-    let userIdFromState =  userId; // Fallback to selected userId
+    let userIdFromState = userId || user?.id; // Use fallback if userId is not set
     try {
       const response = await fetch(SummaryApi.updateRole.url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: roleName, userId: userIdFromState }), // Use correct user_id
+        body: JSON.stringify({ role: roleName, userId: userIdFromState }),
       });
       if (!response.ok) throw new Error('Failed to update role');
       setRoleName('');
       setUserId('');
     } catch (error) {
-      console.error('Error adding role:', error);
+      console.error('Error updating role:', error);
     }
   };
 
+  const columns = [
+    { name: 'ID', selector: (row) => row.id, sortable: true, width: '200px' },
+    { name: 'Name', selector: (row) => row.name, sortable: true, width: '200px' },
+    { name: 'Email', selector: (row) => row.email, sortable: true, width: '250px' },
+    { name: 'Phone', selector: (row) => row.phone, sortable: true, width: '150px' },
+    { name: 'Address', selector: (row) => row.address, sortable: true, width: '200px' },
+    { name: 'Role', selector: (row) => row.role, sortable: true, width: '150px' },
+  ];
+
   return (
-    <Box sx={{ p: 2, m: 2, borderRadius: 2, backgroundColor: '#f8f9fa', boxShadow: 2 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>Create Role</Typography>
-          <form onSubmit={handleUpdateRole}>
-            <Grid container spacing={2}>
-              {/* Role Name */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  value={roleName}
-                  onChange={(e) => setRoleName(e.target.value)}
-                  label="Role Name"
-                  variant="outlined"
-                />
-              </Grid>
+    <div className="p-4 m-4 bg-gray-100 rounded-lg shadow-lg">
+      <Header heading="User Management" /> {/* Add the Header component here */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+        <h2 className="text-xl font-semibold text-center mb-4">Create Role</h2>
+        <form onSubmit={handleUpdateRole}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Role Name */}
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
+              <input
+                type="text"
+                value={roleName}
+                onChange={(e) => setRoleName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
 
-              {/* User ID Dropdown */}
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>User ID</InputLabel>
-                  <Select
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    label="User ID"
-                  >
-                    {rows.map((user) => (
-                      <MenuItem key={user.id} value={user.id}>
-                        {user.id}_{user.name} {/* Display user's name in dropdown */}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+            {/* User ID Dropdown */}
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+              <select
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">Select User</option>
+                {rows.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.id} - {user.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <Grid item xs={12} sm={6}>
-                <Button variant="contained" color="primary" type="submit" fullWidth>
-                  Update Role
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
+            <div className="col-span-1">
+              <button
+                type="submit"
+                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Update Role
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
 
-      <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
-        Users List
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="Users Table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>ID</StyledTableCell>
-              <StyledTableCell>Name</StyledTableCell>
-              <StyledTableCell>Email</StyledTableCell>
-              <StyledTableCell>Phone</StyledTableCell>
-              <StyledTableCell>Address</StyledTableCell>
-              <StyledTableCell>Role</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <StyledTableRow key={row.id}>
-                <StyledTableCell>{row.id}</StyledTableCell>
-                <StyledTableCell>{row.name}</StyledTableCell>
-                <StyledTableCell>{row.email}</StyledTableCell>
-                <StyledTableCell>{row.phone}</StyledTableCell>
-                <StyledTableCell>{row.address}</StyledTableCell>
-                <StyledTableCell>{row.role}</StyledTableCell>
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+      <h2 className="text-2xl font-semibold text-center mb-4">Users List</h2>
+
+      {/* Use ComponentTable to display users */}
+      <ComponentTable data={rows} columns={columns} />
+    </div>
   );
 }

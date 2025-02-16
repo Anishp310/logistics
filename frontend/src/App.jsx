@@ -3,8 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import Register from './Auth/Register';
 import Login from './Auth/Login';
 import Admin from './components/Admin'; // Correct casing for import
-import Consignee from './components/AdminPages/consignee/Consignee';
-import Consignor from './components/AdminPages/consignor/Consignor';
 import Product from './components/AdminPages/product/Product';
 import ProductNature from './components/AdminPages/product/ProductNature';
 import ProductType from './components/AdminPages/product/ProductType';

@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'MyFont';
+  src: url('/src/assets/fonts/myfont.woff2') format('woff2'),
+       url('/src/assets/fonts/myfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
