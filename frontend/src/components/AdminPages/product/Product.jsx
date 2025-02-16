@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TextField, Button, Grid, Container } from '@mui/material';
+import { TextField, Button, Grid, Container, Card, CardContent, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import SummaryApi from '../../../API/BackendApi';
 
@@ -86,7 +86,7 @@ const Product = () => {
       field: 'actions',
       headerName: 'Actions',
       renderCell: (params) => (
-        <Button onClick={() => handleDelete(params.row._id)} color="secondary">
+        <Button onClick={() => handleDelete(params.row._id)} color="error" variant="contained" size="small">
           Delete
         </Button>
       ),
@@ -107,123 +107,147 @@ const Product = () => {
   }));
 
   return (
-    <Container>
-      <h2>Create Product</h2>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          {/* Name Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Product Name"
-              name="name"
-              value={productForm.name}
-              onChange={handleInputChange}
-              fullWidth
-              required
+    <Container maxWidth="lg" style={{ marginTop: '10px' }}>
+      {/* Product Form */}
+      <Card elevation={3} style={{ padding: '10px', marginBottom: '20px' }}>
+        <Typography variant="h5" align="center" gutterBottom style={{ fontWeight: 'bold', color: '#333' }}>
+          Add New Product
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            {/* Name Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Product Name"
+                name="name"
+                value={productForm.name}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Quantity Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Quantity"
+                name="quantity"
+                type="number"
+                value={productForm.quantity}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Value Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Value"
+                name="value"
+                type="number"
+                value={productForm.value}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Dimensions Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Dimensions"
+                name="dimensions"
+                value={productForm.dimensions}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Weight Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Weight"
+                name="weight"
+                type="number"
+                value={productForm.weight}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Type Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Type"
+                name="type"
+                value={productForm.type}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Nature Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="Nature"
+                name="nature"
+                value={productForm.nature.join(', ')}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* HS Code Field */}
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                label="HS Code"
+                name="hs_code"
+                value={productForm.hs_code}
+                onChange={handleInputChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" color="primary" fullWidth>
+                Create Product
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Card>
+
+      {/* Product Table */}
+      <Card elevation={3} style={{ padding: '20px' }}>
+        <Typography variant="h5" align="center" gutterBottom style={{ fontWeight: 'bold', color: '#333' }}>
+          Product List
+        </Typography>
+        <div style={{ height: 450, width: '100%', overflowX: 'auto' }}>
+          <div style={{ width: 'max-content' }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5]}
+              disableSelectionOnClick
+              sx={{
+                '& .MuiDataGrid-row:nth-of-type(even)': { backgroundColor: '#f8f9fa' },
+                '& .MuiDataGrid-cell': { borderBottom: '1px solid #ddd' },
+              }}
             />
-          </Grid>
-
-          {/* Quantity Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Quantity"
-              name="quantity"
-              type="number"
-              value={productForm.quantity}
-              onChange={handleInputChange}
-              fullWidth
-              required
-            />
-          </Grid>
-
-          {/* Value Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Value"
-              name="value"
-              type="number"
-              value={productForm.value}
-              onChange={handleInputChange}
-              fullWidth
-              required
-            />
-          </Grid>
-
-          {/* Dimensions Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Dimensions"
-              name="dimensions"
-              value={productForm.dimensions}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </Grid>
-
-          {/* Weight Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Weight"
-              name="weight"
-              type="number"
-              value={productForm.weight}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </Grid>
-
-          {/* Type Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Type"
-              name="type"
-              value={productForm.type}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </Grid>
-
-          {/* Nature Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="Nature"
-              name="nature"
-              value={productForm.nature.join(', ')}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </Grid>
-
-          {/* HS Code Field */}
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              label="HS Code"
-              name="hs_code"
-              value={productForm.hs_code}
-              onChange={handleInputChange}
-              fullWidth
-            />
-          </Grid>
-
-          {/* Submit Button */}
-          <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              Create Product
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-
-      <h2>Product List</h2>
-      <div style={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          disableSelectionOnClick
-        />
-      </div>
+          </div>
+        </div>
+      </Card>
     </Container>
   );
 };

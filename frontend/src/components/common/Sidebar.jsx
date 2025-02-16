@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 
 const NAVIGATION = [
   { title: "Dashboard", segment: "/admin/dashboard", icon: <DashboardIcon /> },
+  { kind: "divider" },
+  { kind: "divider" },
 
   {
     title: "Users",
