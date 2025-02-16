@@ -10,6 +10,10 @@ export const SummaryApi = {
     url: `${domain}/login`,
     method: "POST",
   },
+  updateRole: {
+    url: `${domain}/role`,
+    method: "PUT",
+  },
 
   // User APIs
   getConsigneeUsers: {
@@ -49,47 +53,49 @@ export const SummaryApi = {
 
   // Product Nature APIs
   createNature: {
-    url: `${domain}/products/nature`,
+    url: `${domain}/nature`,
     method: "POST",
   },
   getAllNatures: {
-    url: `${domain}/products/natures`,
+    url: `${domain}/natures`,
     method: "GET",
   },
   getNatureById: {
-    url: (id) => `${domain}/products/nature/${id}`,
+    url: (id) => `${domain}/nature/${id}`,
     method: "GET",
   },
   updateNature: {
-    url: (id) => `${domain}/products/nature/${id}`,
+    url: (id) => `${domain}/nature/${id}`,
     method: "PUT",
   },
   deleteNature: {
-    url: (id) => `${domain}/products/nature/${id}`,
+    url: (id) => `${domain}/nature/${id}`,
     method: "DELETE",
   },
 
   // Product Type APIs
   createType: {
-    url: `${domain}/products/type`,
+    url: `${domain}/type`,
     method: "POST",
   },
   getAllTypes: {
-    url: `${domain}/products/types`,
+    url: `${domain}/types`,
     method: "GET",
   },
   getTypeById: {
-    url: (id) => `${domain}/products/type/${id}`,
+    url: (id) => `${domain}/type/${id}`,
     method: "GET",
   },
   updateType: {
-    url: (id) => `${domain}/products/type/${id}`,
+    url: (id) => `${domain}/type/${id}`,
     method: "PUT",
   },
   deleteType: {
-    url: (id) => `${domain}/products/type/${id}`,
+    url: (id) => `${domain}/type/${id}`,
     method: "DELETE",
   },
+
+ 
 };
 
 export default SummaryApi;

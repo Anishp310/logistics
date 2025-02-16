@@ -21,7 +21,7 @@ export default function Header({ toggleDrawer }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("User");
+    const storedUser = sessionStorage.getItem("User");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }

@@ -10,6 +10,8 @@ import ProductNature from './components/AdminPages/product/ProductNature';
 import ProductType from './components/AdminPages/product/ProductType';
 import Dashboard from './components/AdminPages/dashboard/DashBoard';
 import ProductDetails from './components/AdminPages/product/ProductDetails';
+import User from './components/AdminPages/User/User/User';
+import AddRole from './components/AdminPages/User/AddRole/AddRole';
 
 const App = () => {
   return (
@@ -25,8 +27,8 @@ const App = () => {
       <Route path="/admin" element={<Admin />}>
   <Route index element={<Dashboard />} />
   <Route path="dashboard" element={<Dashboard />} />
-  <Route path="consignee" element={<Consignee />} />
-  <Route path="consignor" element={<Consignor />} />
+  <Route path="users" element={<User />} />
+  <Route path="role" element={<AddRole />} />
   <Route path="product" element={<Product />} />
   <Route path="product/nature" element={<ProductNature />} />
   <Route path="product/type" element={<ProductType />} />

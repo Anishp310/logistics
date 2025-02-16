@@ -1,15 +1,16 @@
-import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "../utils.js/generateToken.js";
-import { validateLogin, validateRegistration } from "../utils.js/validateUserData.js";
+import { generateToken } from "../../utils.js/generateToken.js";
+import { validateLogin, validateRegistration } from "../../utils.js/validateUserData.js";
+import { User } from "../../models/userModal/userModel.js";
 
 // Register a user
 export const register = async (req, res) => {
   try {
     const { name, email, phone, address, role, landmark, password } = req.body;
 
+    const userRole = role || 'user';
     // Perform registration validation
-    const registrationValidation = await validateRegistration(name, email, phone, address, role, landmark,password);
+    const registrationValidation = await validateRegistration(name, email, phone, address, userRole, landmark, password);
     if (!registrationValidation.valid) {
       return res.status(400).json({ message: registrationValidation.message });
     }
@@ -47,6 +48,11 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    console.log(user)
+    if (user.role.toLowerCase() === 'user') {
+      return res.status(400).json({ message: "Access Denied" });
+    }
+
     // Generate token
     const token = generateToken(user._id, user.role);
 
@@ -59,26 +65,29 @@ export const login = async (req, res) => {
   }
 };
 
-
-//get
-
-export const getConsigneeUsers = async (req, res) => {
+// Update a user's role based on user_id
+export const updateUserRole = async (req, res) => {
   try {
-    const users = await User.find({ role: "Consignee" });
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
-  }
-};
+    const { userId, role } = req.body; // role is passed in the request body
+    console.log( userId, role)
+    if (!userId || !role) {
+      return res.status(400).json({ message: "User ID and role are required" });
+    }
 
-// Get users with role = "Consignor"
-export const getConsignorUsers = async (req, res) => {
-  try {
-    const users = await User.find({ role: "Consignor" });
-    res.json(users);
+    // Find the user by userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user's role
+    user.role = role;
+    await user.save();
+
+    // Send success response
+    res.json({ message: "User role updated successfully", user });
   } catch (error) {
-    console.error(error);
+    console.error("Error updating user role:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

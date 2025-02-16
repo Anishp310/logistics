@@ -1,21 +1,36 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { Box, Typography, Paper } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { Box, Typography } from '@mui/material';
 import SummaryApi from '../../../API/BackendApi';
 
-const columns = [
-  { field: 'id', headerName: 'ID', minWidth: 230, flex: 1 },
-  { field: 'name', headerName: 'Name', minWidth: 150, flex: 1 },
-  { field: 'email', headerName: 'Email', minWidth: 200, flex: 1 },
-  { field: 'phone', headerName: 'Phone', minWidth: 150, flex: 1 },
-  { field: 'address', headerName: 'Address', minWidth: 220, flex: 1 },
-  { field: 'role', headerName: 'Role', minWidth: 150, flex: 1 },
-];
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    fontWeight: 'bold',
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
 
 export default function Consignor() {
   const [rows, setRows] = useState([]);
 
-  const getConsigneeUsers = useCallback(async () => {
+  const getConsignorUsers = useCallback(async () => {
     try {
       const response = await fetch(SummaryApi.getConsignorUsers.url, {
         headers: { 'Content-Type': 'application/json' },
@@ -37,57 +52,40 @@ export default function Consignor() {
   }, []);
 
   useEffect(() => {
-    getConsigneeUsers();
-  }, [getConsigneeUsers]);
+    getConsignorUsers();
+  }, [getConsignorUsers]);
 
   return (
-    <Box
-      sx={{
-        p: { xs: 1, sm: 2 },
-        m: { xs: 1, sm: 2 },
-        borderRadius: 2,
-        backgroundColor: '#f8f9fa',
-        boxShadow: 2,
-        overflowX: 'auto', // Ensures responsiveness
-      }}
-    >
-      <Typography 
-        variant="h5" 
-        sx={{ mb: 2, fontWeight: 'bold', color: '#333', textAlign: 'center' }}
-      >
+    <Box sx={{ p: 2, m: 2, borderRadius: 2, backgroundColor: '#f8f9fa', boxShadow: 2 }}>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
         Consignor List
       </Typography>
-
-      <Paper elevation={3} sx={{ p: 2, overflowX: 'auto' }}>
-        <Box sx={{ height: 450, width: '100%', minWidth: '600px' }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            pageSize={5}
-            autoHeight
-            checkboxSelection
-            sx={{
-              '& .MuiDataGrid-root': {
-                backgroundColor: 'white',
-              },
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#1976d2',
-              },
-              '& .MuiDataGrid-columnHeadersInner': {
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: '1rem', // Ensures readability
-              },
-              '& .MuiDataGrid-cell': {
-                color: '#333',
-              },
-              '& .MuiDataGrid-virtualScroller': {
-                overflowX: 'auto', // Enables scrolling if content overflows
-              },
-            }}
-          />
-        </Box>
-      </Paper>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 700 }} aria-label="consignor table">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>ID</StyledTableCell>
+              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Email</StyledTableCell>
+              <StyledTableCell>Phone</StyledTableCell>
+              <StyledTableCell>Address</StyledTableCell>
+              <StyledTableCell>Role</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <StyledTableRow key={row.id}>
+                <StyledTableCell>{row.id}</StyledTableCell>
+                <StyledTableCell>{row.name}</StyledTableCell>
+                <StyledTableCell>{row.email}</StyledTableCell>
+                <StyledTableCell>{row.phone}</StyledTableCell>
+                <StyledTableCell>{row.address}</StyledTableCell>
+                <StyledTableCell>{row.role}</StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }

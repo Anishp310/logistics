@@ -8,11 +8,10 @@ const Register = () => {
     email: '',
     phone: '',
     address: '',
-    role: '',
     landmark: '',
     password: '',
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
@@ -38,8 +37,7 @@ const Register = () => {
 
       if (response.ok) {
         console.log("User registered successfully:", data);
-        navigate("/login")
-
+        navigate("/login");
       } else {
         setError(data.message || "Registration failed");
       }
@@ -111,22 +109,6 @@ const Register = () => {
               className="rounded-md border border-gray-300 p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoComplete="address"
             />
-          </div>
-
-          <div className='flex flex-col'>
-            <label htmlFor="role" className='text-gray-600'>Role</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="rounded-md border border-gray-300 p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select a role</option>
-              <option value="admin">Admin</option>
-              <option value="consignee">Consignee</option>
-              <option value="consigner">Consignor</option>
-            </select>
           </div>
 
           <div className='flex flex-col'>

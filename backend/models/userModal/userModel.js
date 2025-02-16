@@ -7,7 +7,8 @@ const UserSchema = new mongoose.Schema({
   address: { type: String, required: true },
   role: { 
     type: String, 
-    enum: ["admin", "consignee", "consignor"], 
+    default: "user", 
+    
     required: true 
   },
   landmark: { type: String },
@@ -19,4 +20,6 @@ const UserSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
-export default mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
+
+export { User };

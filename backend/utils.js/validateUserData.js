@@ -1,4 +1,4 @@
-import User from "../models/userModel.js";
+import { User } from "../models/userModal/userModel.js";
 
 // Regex to validate email format
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -20,11 +20,7 @@ export const validateRegistration = async (name, email, phone, address, role, la
     return { valid: false, message: "Invalid phone number format" };
   }
 
-  // Check if role is valid
-  const validRoles = ["admin", "consignee", "consigner"];
-  if (!validRoles.includes(role)) {
-    return { valid: false, message: `Invalid role. Must be one of: ${validRoles.join(", ")}` };
-  }
+
 
   // Check if password meets criteria (e.g., minimum 6 characters)
   if (password.length < 6) {

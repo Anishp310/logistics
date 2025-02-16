@@ -3,7 +3,7 @@ import { Box, Typography, Container, Divider } from '@mui/material';
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{ backgroundColor: '#333', color: '#fff', py: 3, position: 'relative', bottom: 0, width: '100%' }}>
+    <Box component="footer" sx={{ backgroundColor: '#333', color: '#fff', py: 3, position: 'relative', bottom: 0}}>
       <Container maxWidth="xl">
         <Divider sx={{ borderColor: '#fff' }} />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>

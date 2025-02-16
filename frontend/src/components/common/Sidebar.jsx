@@ -17,8 +17,8 @@ const NAVIGATION = [
     title: "Users",
     icon: <DescriptionIcon />,
     subItems: [
-      { title: "Consignee", segment: "/admin/consignee", icon: <DescriptionIcon /> },
-      { title: "Consigner", segment: "/admin/consignor", icon: <DescriptionIcon /> },
+      { title: "UserTable", segment: "/admin/users", icon: <DescriptionIcon /> },
+      // { title: "Assign Role", segment: "/admin/role", icon: <DescriptionIcon /> },
     ],
   },
     { kind: "divider" },

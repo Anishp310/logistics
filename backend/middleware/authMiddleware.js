@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import User from "../models/userModel.js";
 
 const protect = (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", ""); // Get the token from the Authorization header

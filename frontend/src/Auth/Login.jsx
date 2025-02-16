@@ -18,14 +18,20 @@ const Login = () => {
     try {
       const response = await fetch(SummaryApi.login.url, {
         method: SummaryApi.login.method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+  
       const data = await response.json();
+  
       if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('User', JSON.stringify(data.user));
-        navigate('/admin');
+        const expirationTime = Date.now() + 60 * 60 * 1000; // Token expires in 1 hour
+  
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("User", JSON.stringify(data.user));
+        sessionStorage.setItem("tokenExpiry", expirationTime);
+  
+        navigate("/admin");
       } else {
         setError(data.message);
       }
@@ -33,7 +39,22 @@ const Login = () => {
       setError("Request failed: " + error.message);
     }
   };
-
+  
+  // Function to check if session is expired
+  const isSessionValid = () => {
+    const expiry = sessionStorage.getItem("tokenExpiry");
+    if (!expiry) return false;
+    return Date.now() < parseInt(expiry);
+  };
+  
+  // Call this function before accessing protected pages
+  const checkSession = () => {
+    if (!isSessionValid()) {
+      sessionStorage.clear();
+      navigate("/login"); // Redirect to login page if session expired
+    }
+  };
+  
   const handleGoogleLogin = (response) => {
     try {
       if (!response || !response.credential) {
@@ -100,9 +121,9 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-4 flex justify-center">
+        {/* <div className="mt-4 flex justify-center">
           <GoogleLogin onSuccess={handleGoogleLogin} onError={() => setError('Google Login Failed')} />
-        </div>
+        </div> */}
 
         <div className='mt-4 text-center'>
           <p>No account? <Link to="/register" className='text-blue-500 font-semibold'>Register</Link></p>
