@@ -10,6 +10,8 @@ import Dashboard from './components/AdminPages/dashboard/DashBoard';
 import ProductDetails from './components/AdminPages/product/ProductDetails';
 import User from './components/AdminPages/User/User/User';
 import AddRole from './components/AdminPages/User/AddRole/AddRole';
+import EditUser from './components/AdminPages/User/User/EditUser';
+import Job from './components/AdminPages/Job/Job';
 
 const App = () => {
   return (
@@ -26,11 +28,13 @@ const App = () => {
   <Route index element={<Dashboard />} />
   <Route path="dashboard" element={<Dashboard />} />
   <Route path="users" element={<User />} />
+  <Route path="user/:id" element={<EditUser />} />
   <Route path="role" element={<AddRole />} />
   <Route path="product" element={<Product />} />
   <Route path="product/nature" element={<ProductNature />} />
   <Route path="product/type" element={<ProductType />} />
-  <Route path="product/details" element={<ProductDetails />} /> {/* Define the new route */}
+  <Route path="product/:id" element={<ProductDetails />} /> Define the new route
+  <Route path="job" element={<Job />} />
 
 </Route>
 

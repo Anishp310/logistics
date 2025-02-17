@@ -4,6 +4,9 @@ import SummaryApi from '../../../API/BackendApi';
 import Header from '../../common/Header';
 import ComponentTable from '../../common/ComponentTable';
 import Select from 'react-select';
+import { useNavigate } from 'react-router-dom';
+import { CiEdit } from "react-icons/ci";
+import { MdDelete } from "react-icons/md";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
@@ -91,28 +94,10 @@ export default function Product() {
     e.preventDefault();
     // Validation and form submission logic goes here...
   };
+  const navigate = useNavigate();
 
-  const handleUpdate = async (productId, updatedData) => {
-    try {
-      const response = await fetch(SummaryApi.updateProduct.url(productId), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData), // Send updated product data
-      });
-
-      if (!response.ok) throw new Error('Failed to update product');
-
-      const data = await response.json();
-      console.log('Updated product:', data);
-
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === productId ? data : product
-        )
-      );
-    } catch (error) {
-      console.error('Error updating product:', error);
-    }
+  const handleUpdate = (id, row) => {
+    navigate(`/admin/product/${id}`); // Navigate to details page with ID and name as URL params
   };
 
   const handleDelete = async (productId) => {
@@ -150,13 +135,15 @@ export default function Product() {
             onClick={() => handleUpdate(row._id, row)} // Pass the row data to update
             className="px-4 py-2 bg-blue-600 text-white rounded-md"
           >
-            Update
+            <CiEdit className='' />
+
           </button>
           <button
             onClick={() => handleDelete(row._id)}
             className="px-4 py-2 bg-red-600 text-white rounded-md"
           >
-            Delete
+            <MdDelete />
+
           </button>
         </div>
       ),
@@ -165,7 +152,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="p-2 m-2 bg-gray-100 rounded-lg shadow-lg max-w-[165vh]">
+    <div className="p-2 m-2 bg-gray-100 rounded-lg shadow-lg max-w-[160vh]">
       <Header heading="Product Management" />
       
       <div className="bg-white p-4 rounded-lg shadow-md mb-6 ">
@@ -254,28 +241,28 @@ export default function Product() {
               </select>
             </div>
             <div className="col-span-1">
-  <label className="block text-sm font-medium text-gray-700 mb-1">Product Nature</label>
-  <Select
-    isMulti
-    name="nature"
-    options={natures.map((nature) => ({
-      value: nature._id,
-      label: nature.name,
-    }))}
-    value={productForm.nature.map((natureId) => ({
-      value: natureId,
-      label: natures.find((nature) => nature._id === natureId)?.name,
-    }))}
-    onChange={(selectedOptions) => {
-      const selectedNatures = selectedOptions.map((option) => option.value);
-      setProductForm({
-        ...productForm,
-        nature: selectedNatures,
-      });
-    }}
-    className="w-full"
-  />
-</div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Product Nature</label>
+                  <Select
+                    isMulti
+                    name="nature"
+                    options={natures.map((nature) => ({
+                      value: nature._id,
+                      label: nature.name,
+                    }))}
+                    value={productForm.nature.map((natureId) => ({
+                      value: natureId,
+                      label: natures.find((nature) => nature._id === natureId)?.name,
+                    }))}
+                    onChange={(selectedOptions) => {
+                      const selectedNatures = selectedOptions.map((option) => option.value);
+                      setProductForm({
+                        ...productForm,
+                        nature: selectedNatures,
+                      });
+                    }}
+                    className="w-full"
+                  />
+                </div>
 
 
           </div>
@@ -290,7 +277,7 @@ export default function Product() {
         </form>
       </div>
 
-      <div className="max-w-[165vh] overflow-x-auto rounded-xl shadow-lg">
+      <div className="max-w-[160vh] overflow-x-auto rounded-xl shadow-lg">
   <ComponentTable data={products} columns={columns} />
 </div>
     </div>

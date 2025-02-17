@@ -5,6 +5,7 @@ import {
   FaEllipsisH 
 } from 'react-icons/fa';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { FaShippingFast } from "react-icons/fa";
 
 const menuItems = [
   { path: "/admin", label: "Dashboard", icon: <FaTachometerAlt /> },
@@ -22,10 +23,13 @@ const menuItems = [
       { path: "/admin/product", label: "Product" },
       { path: "/admin/product/type", label: "Type" },
       { path: "/admin/product/nature", label: "Nature" },
-      { path: "/admin/product/details", label: "Details" },
+      // { path: "/admin/product/details", label: "Details" },
     ],
   },
   { kind: "divider" },
+  {   title: "Job", path: "/admin/job", label: "Job", icon: <FaShippingFast />
+  },
+
   {
     title: "Reports",
     icon: <FaTachometerAlt />,

@@ -1,122 +1,132 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import SummaryApi from '../../../../API/BackendApi';
-import ComponentTable from '../../../common/ComponentTable';
-import Header from '../../../common/Header';  // Import the Header component
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import SummaryApi from "../../../../API/BackendApi";
+import ComponentTable from "../../../common/ComponentTable";
+import Header from "../../../common/Header";
 
-export default function User() {
+export default function RequestJob() {
   const [rows, setRows] = useState([]);
-  const [roleName, setRoleName] = useState('');
-  const [userId, setUserId] = useState('');
-  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    product: "",
+    quantity: "",
+    totalPrice: "",
+    sender: "",
+    receiver: "",
+    status: "Pending",
+    createdBy: "",
+  });
+  const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch all users and set them to rows state
-  const getAllUsers = useCallback(async () => {
+  // Fetch all requests
+  const getAllRequests = useCallback(async () => {
     try {
-      const response = await fetch(SummaryApi.getAllUsers.url, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
-      setRows(data.map((user) => ({
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        role: user.role,
-      })));
+      const response = await axios.get(SummaryApi.getAllRequests.url);
+      setRows(
+        response.data.map((request) => ({
+          id: request._id,
+          product: request.product,
+          quantity: request.quantity,
+          totalPrice: request.totalPrice,
+          sender: request.sender,
+          receiver: request.receiver,
+          status: request.status,
+          createdBy: request.createdBy,
+        }))
+      );
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching requests:", error);
     }
   }, []);
 
   useEffect(() => {
-    getAllUsers();
-  }, [getAllUsers,rows]);
+    getAllRequests();
+  }, [getAllRequests]);
 
-  useEffect(() => {
-    const storedUser = sessionStorage.getItem("User");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  // Handle form input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleUpdateRole = async (event) => {
-    event.preventDefault();
-    let userIdFromState = userId || user?.id; // Use fallback if userId is not set
+  // Handle form submission (Create & Update)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch(SummaryApi.updateRole.url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: roleName, userId: userIdFromState }),
-      });
-      if (!response.ok) throw new Error('Failed to update role');
-      setRoleName('');
-      setUserId('');
+      if (editingId) {
+        await axios.put(SummaryApi.updateRequest.url(editingId), formData);
+      } else {
+        await axios.post(SummaryApi.createRequest.url, formData);
+      }
+      getAllRequests();
+      setFormData({ product: "", quantity: "", totalPrice: "", sender: "", receiver: "", status: "Pending", createdBy: "" });
+      setEditingId(null);
     } catch (error) {
-      console.error('Error updating role:', error);
+      console.error("Error submitting request:", error);
+    }
+  };
+
+  // Navigate to Edit Request Page
+  const handleEdit = (id) => {
+    navigate(`/admin/request/${id}`);
+  };
+
+  // Handle Delete Request
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this request?")) return;
+    try {
+      await axios.delete(SummaryApi.deleteRequest.url(id));
+      setRows(rows.filter((request) => request.id !== id));
+    } catch (error) {
+      console.error("Error deleting request:", error);
     }
   };
 
   const columns = [
-    { name: 'ID', selector: (row) => row.id, sortable: true, width: '200px' },
-    { name: 'Name', selector: (row) => row.name, sortable: true, width: '200px' },
-    { name: 'Email', selector: (row) => row.email, sortable: true, width: '250px' },
-    { name: 'Phone', selector: (row) => row.phone, sortable: true, width: '150px' },
-    { name: 'Address', selector: (row) => row.address, sortable: true, width: '200px' },
-    { name: 'Role', selector: (row) => row.role, sortable: true, width: '150px' },
+    { name: "ID", selector: (row) => row.id, sortable: true, width: "200px" },
+    { name: "Product", selector: (row) => row.product, sortable: true, width: "200px" },
+    { name: "Quantity", selector: (row) => row.quantity, sortable: true, width: "150px" },
+    { name: "Total Price", selector: (row) => row.totalPrice, sortable: true, width: "150px" },
+    { name: "Sender", selector: (row) => row.sender, sortable: true, width: "200px" },
+    { name: "Receiver", selector: (row) => row.receiver, sortable: true, width: "200px" },
+    { name: "Status", selector: (row) => row.status, sortable: true, width: "150px" },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <button onClick={() => handleEdit(row.id)} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Edit</button>
+          <button onClick={() => handleDelete(row.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
+        </div>
+      ),
+      width: "200px",
+    },
   ];
 
   return (
     <div className="p-4 m-4 bg-gray-100 rounded-lg shadow-lg">
-      <Header heading="User Management" /> {/* Add the Header component here */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold text-center mb-4">Create Role</h2>
-        <form onSubmit={handleUpdateRole}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Role Name */}
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
-              <input
-                type="text"
-                value={roleName}
-                onChange={(e) => setRoleName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+      <Header heading="Request Management" />
+      <h2 className="text-2xl font-semibold text-center mb-4">Request a Job</h2>
 
-            {/* User ID Dropdown */}
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
-              <select
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">Select User</option>
-                {rows.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.id} - {user.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* Request Form */}
+      <form onSubmit={handleSubmit} className="bg-white p-4 shadow-md rounded-md mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <input type="text" name="product" value={formData.product} onChange={handleChange} placeholder="Product ID" className="border p-2 rounded" required />
+          <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} placeholder="Quantity" className="border p-2 rounded" required />
+          <input type="number" name="totalPrice" value={formData.totalPrice} onChange={handleChange} placeholder="Total Price" className="border p-2 rounded" required />
+          <input type="text" name="sender" value={formData.sender} onChange={handleChange} placeholder="Sender ID" className="border p-2 rounded" required />
+          <input type="text" name="receiver" value={formData.receiver} onChange={handleChange} placeholder="Receiver ID" className="border p-2 rounded" required />
+          <select name="status" value={formData.status} onChange={handleChange} className="border p-2 rounded">
+            <option value="Pending">Pending</option>
+            <option value="Active">Active</option>
+            <option value="Finished">Finished</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <input type="text" name="createdBy" value={formData.createdBy} onChange={handleChange} placeholder="Created By" className="border p-2 rounded" required />
+        </div>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 mt-4 rounded">{editingId ? "Update Request" : "Create Request"}</button>
+      </form>
 
-            <div className="col-span-1">
-              <button
-                type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                Update Role
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <h2 className="text-2xl font-semibold text-center mb-4">Users List</h2>
-
-      {/* Use ComponentTable to display users */}
+      {/* Requests Table */}
       <ComponentTable data={rows} columns={columns} />
     </div>
   );

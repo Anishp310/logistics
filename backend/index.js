@@ -7,6 +7,8 @@ import userRoutes from "./routes/userRoutes/userRoute.js";
 import productRoutes from "./routes/productRoutes/productRoutes.js"; 
 import natureRoutes from "./routes/productRoutes/natureRoutes.js"; 
 import typeRoutes from "./routes/productRoutes/typeRoutes.js"; 
+import jobRoutes from "./routes/job/jobRoutes.js"; 
+import requestRoutes from "./routes/job/requestRoutes.js"; 
 
 dotenv.config();
 const app = express();
@@ -30,6 +32,8 @@ app.use(userRoutes);
 app.use('/products', productRoutes); 
 app.use(natureRoutes); 
 app.use(typeRoutes); 
+app.use(jobRoutes); 
+app.use(requestRoutes); 
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

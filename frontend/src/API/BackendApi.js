@@ -14,19 +14,65 @@ export const SummaryApi = {
     url: `${domain}/role`,
     method: "PUT",
   },
-
-  // User APIs
-  getConsigneeUsers: {
-    url: `${domain}/consignee`,
-    method: "GET",
+  updateUserById: {
+    url: (id) => `${domain}/update/${id}`,
+    method: "PUT",
   },
-  getConsignorUsers: {
-    url: `${domain}/consignor`,
+  deleteUser: {
+    url: (id) => `${domain}/delete/${id}`,
+    method: "DELETE",
+  },
+  getUserById: {
+    url: (id) => `${domain}/user/${id}`,
     method: "GET",
   },
   getAllUsers: {
     url: `${domain}/all`,
     method: "GET",
+  },
+
+  // Job APIs
+  createJob: {
+    url: `${domain}/jobs`,
+    method: "POST",
+  },
+  getJobs: {
+    url: `${domain}/jobs`,
+    method: "GET",
+  },
+  getJobById: {
+    url: (id) => `${domain}/jobs/${id}`,
+    method: "GET",
+  },
+  updateJob: {
+    url: (id) => `${domain}/jobs/${id}`,
+    method: "PUT",
+  },
+  deleteJob: {
+    url: (id) => `${domain}/jobs/${id}`,
+    method: "DELETE",
+  },
+
+  // Request APIs
+  createRequest: {
+    url: `${domain}/request`,
+    method: "POST",
+  },
+  getAllRequests: {
+    url: `${domain}/request`,
+    method: "GET",
+  },
+  getRequestById: {
+    url: (id) => `${domain}/request/${id}`,
+    method: "GET",
+  },
+  updateRequest: {
+    url: (id) => `${domain}/request/${id}`,
+    method: "PUT",
+  },
+  deleteRequest: {
+    url: (id) => `${domain}/request/${id}`,
+    method: "DELETE",
   },
 
   // Product APIs
@@ -94,8 +140,6 @@ export const SummaryApi = {
     url: (id) => `${domain}/type/${id}`,
     method: "DELETE",
   },
-
- 
 };
 
 export default SummaryApi;
