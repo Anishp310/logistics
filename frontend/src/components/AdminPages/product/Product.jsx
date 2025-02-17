@@ -165,7 +165,7 @@ export default function Product() {
   ];
 
   return (
-    <div className="p-2 m-2 bg-gray-100 rounded-lg shadow-lg max-w-[165vh]">
+    <div className="p-2 m-2 bg-gray-100 rounded-lg shadow-lg max-w-[160vh]">
       <Header heading="Product Management" />
       
       <div className="bg-white p-4 rounded-lg shadow-md mb-6 ">
@@ -290,7 +290,7 @@ export default function Product() {
         </form>
       </div>
 
-      <div className="max-w-[165vh] overflow-x-auto rounded-xl shadow-lg">
+      <div className="max-w-[160vh] overflow-x-auto rounded-xl shadow-lg">
   <ComponentTable data={products} columns={columns} />
 </div>
     </div>
