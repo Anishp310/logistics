@@ -1,125 +1,110 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import SummaryApi from '../../../API/BackendApi';
-import Header from '../../common/Header';
-import ComponentTable from '../../common/ComponentTable';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import SummaryApi from "../../../API/BackendApi";
+import ComponentTable from "../../common/ComponentTable";
 
-export default function ProductNature() {
-  const [natures, setNatures] = useState([]);
-  const [newNature, setNewNature] = useState('');
-  const [user, setUser] = useState(null);
+const RequestJob = () => {
+  const [requests, setRequests] = useState([]);
+  const [formData, setFormData] = useState({
+    product: "",
+    quantity: "",
+    totalPrice: "",
+    sender: "",
+    receiver: "",
+    status: "Pending",
+    createdBy: "",
+  });
+  const [editingId, setEditingId] = useState(null);
 
-  // Fetch all Natures from the API
-  const getNatures = useCallback(async () => {
-    try {
-      const response = await fetch(SummaryApi.getAllNatures.url, { method: 'GET' });
-      if (!response.ok) throw new Error('Failed to fetch Natures');
-      const data = await response.json();
-      setNatures(data);
-    } catch (error) {
-      console.error('Error fetching Natures:', error);
-    }
-  }, []);
-
-  // Fetch user details
   useEffect(() => {
-    const storedUser = sessionStorage.getItem('User');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    fetchRequests();
   }, []);
 
-  // Handle adding a new Nature
-  const handleAddNature = async (e) => {
+  const fetchRequests = async () => {
+    try {
+      const response = await axios.get(SummaryApi.getAllRequests.url);
+      setRequests(response.data);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const userIdFromState = user._id;
     try {
-      const response = await fetch(SummaryApi.createNature.url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newNature, user_id: userIdFromState }),  // Include user_id
-      });
-      if (!response.ok) throw new Error('Failed to create Nature');
-      setNewNature('');
-      getNatures(); // Refresh Natures
+      if (editingId) {
+        await axios.put(SummaryApi.updateRequest.url(editingId), formData);
+      } else {
+        await axios.post(SummaryApi.createRequest.url, formData);
+      }
+      fetchRequests();
+      setFormData({ product: "", quantity: "", totalPrice: "", sender: "", receiver: "", status: "Pending", createdBy: "" });
+      setEditingId(null);
     } catch (error) {
-      console.error('Error adding Nature:', error);
+      console.error("Error submitting request:", error);
     }
   };
 
-  // Handle deleting a Nature
-  const handleDeleteNature = async (id) => {
-    try {
-      const response = await fetch(SummaryApi.deleteNature.url(id), { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete Nature');
-      getNatures(); // Refresh Natures
-    } catch (error) {
-      console.error('Error deleting Nature:', error);
-    }
+  const handleEdit = (request) => {
+    setFormData(request);
+    setEditingId(request._id);
   };
 
-  // Handle editing a Nature
-  const handleEditNature = async (id, updatedName) => {
+  const handleDelete = async (id) => {
     try {
-      const response = await fetch(SummaryApi.updateNature(id).url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: updatedName, user_id: user._id }),  // Include user_id
-      });
-      if (!response.ok) throw new Error('Failed to update Nature');
-      getNatures(); // Refresh Natures
+      await axios.delete(SummaryApi.deleteRequest.url(id));
+      fetchRequests();
     } catch (error) {
-      console.error('Error updating Nature:', error);
+      console.error("Error deleting request:", error);
     }
   };
-
-  useEffect(() => {
-    getNatures();
-  }, [getNatures]);
 
   const columns = [
-    { name: 'ID', selector: (row) => row._id, sortable: true, width: '200px' },
-    { name: 'User ID', selector: (row) => row.user_id, sortable: true, width: '200px' },
-    { name: 'Name', selector: (row) => row.name, sortable: true, width: '250px' },
-    { name: 'Actions', selector: (row) => (
-      <div>
-        <button onClick={() => handleDeleteNature(row._id)} className="bg-red-500 text-white px-4 py-2 rounded-md">Delete</button>
-      </div>
-    ), width: '150px' },
+    { name: "Order #", selector: (row) => row.orderNumber, sortable: true },
+    { name: "Product", selector: (row) => row.product, sortable: true },
+    { name: "Quantity", selector: (row) => row.quantity, sortable: true },
+    { name: "Total Price", selector: (row) => row.totalPrice, sortable: true },
+    { name: "Sender", selector: (row) => row.sender, sortable: true },
+    { name: "Receiver", selector: (row) => row.receiver, sortable: true },
+    { name: "Status", selector: (row) => row.status, sortable: true },
+    {
+      name: "Actions",
+      selector: (row) => (
+        <div>
+          <button onClick={() => handleEdit(row)} className="bg-yellow-500 text-white px-2 py-1 mr-2 rounded">Edit</button>
+          <button onClick={() => handleDelete(row._id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+        </div>
+      ),
+    },
   ];
 
   return (
-    <div className="p-4 m-4 bg-gray-100 rounded-lg shadow-lg">
-      <Header heading="Product Nature Management" />
-
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold text-center mb-4">Create Nature</h2>
-        <form onSubmit={handleAddNature}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nature Name</label>
-              <input
-                type="text"
-                value={newNature}
-                onChange={(e) => setNewNature(e.target.value)}
-                placeholder="Enter Nature Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
-              />
-            </div>
-            <div className="col-span-1 flex items-center justify-center md:mt-6">
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
-              >
-                Add Nature
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <h2 className="text-2xl font-semibold text-center mb-4">Natures List</h2>
-
-      <ComponentTable data={natures} columns={columns} />
+    <div className="container mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">Request Job</h2>
+      <form onSubmit={handleSubmit} className="bg-white p-4 shadow-md rounded-md mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <input type="text" name="product" value={formData.product} onChange={handleChange} placeholder="Product ID" className="border p-2 rounded" required />
+          <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} placeholder="Quantity" className="border p-2 rounded" required />
+          <input type="number" name="totalPrice" value={formData.totalPrice} onChange={handleChange} placeholder="Total Price" className="border p-2 rounded" required />
+          <input type="text" name="sender" value={formData.sender} onChange={handleChange} placeholder="Sender ID" className="border p-2 rounded" required />
+          <input type="text" name="receiver" value={formData.receiver} onChange={handleChange} placeholder="Receiver ID" className="border p-2 rounded" required />
+          <select name="status" value={formData.status} onChange={handleChange} className="border p-2 rounded">
+            <option value="Pending">Pending</option>
+            <option value="Active">Active</option>
+            <option value="Finished">Finished</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <input type="text" name="createdBy" value={formData.createdBy} onChange={handleChange} placeholder="Created By" className="border p-2 rounded" required />
+        </div>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 mt-4 rounded">{editingId ? "Update Request" : "Create Request"}</button>
+      </form>
+      <ComponentTable data={requests} columns={columns} />
     </div>
   );
-}
+};
+
+export default RequestJob;

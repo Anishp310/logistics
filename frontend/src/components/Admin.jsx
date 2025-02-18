@@ -9,7 +9,7 @@ const Admin = () => {
         {/* Sidebar */}
         <div className="w-[300px]">
           <Sidebar />
-        </div>
+        </div>  
 
         {/* Main Content */}
         <div className="flex-1  bg-white shadow-lg rounded-lg p-2">

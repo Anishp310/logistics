@@ -29,7 +29,6 @@ export const createNature = async (req, res) => {
 export const getAllNatures = async (req, res) => {
   try {
     const natures = await ProductNature.find();
-    console.log(natures)
     res.status(200).json(natures);
   } catch (error) {
     res.status(500).json({ message: "Error fetching natures", error: error.message });

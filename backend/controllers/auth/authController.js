@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
-import { generateToken } from "../../utils.js/generateToken.js";
-import { validateLogin, validateRegistration } from "../../utils.js/validateUserData.js";
+import { generateToken } from "../../utils/generateToken.js";
+import { validateLogin, validateRegistration } from "../../utils/validateUserData.js";
 import { User } from "../../models/userModal/userModel.js";
 
 // Register a user
@@ -8,19 +8,24 @@ export const register = async (req, res) => {
   try {
     const { name, email, phone, address, role, landmark, password } = req.body;
 
-    const userRole = role || 'user';
+    const userRole = role || "user";
+
     // Perform registration validation
-    const registrationValidation = await validateRegistration(name, email, phone, address, userRole, landmark, password);
+    const registrationValidation = await validateRegistration(
+      name, email, phone, address, userRole, landmark, password
+    );
     if (!registrationValidation.valid) {
       return res.status(400).json({ message: registrationValidation.message });
     }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the new user
-    const user = await User.create({ name, email, phone, address, role, landmark, password: hashedPassword });
+    const user = await User.create({
+      name, email, phone, address, role: userRole, landmark, password: hashedPassword
+    });
 
-    // Send success response
     res.status(201).json({ message: "User registered successfully", user });
 
   } catch (err) {
@@ -48,15 +53,13 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    console.log(user)
-    if (user.role.toLowerCase() === 'user') {
+    if (user.role.toLowerCase() === "user") {
       return res.status(400).json({ message: "Access Denied" });
     }
 
     // Generate token
     const token = generateToken(user._id, user.role);
 
-    // Send response with token
     res.json({ user, token });
 
   } catch (error) {
@@ -65,26 +68,23 @@ export const login = async (req, res) => {
   }
 };
 
-// Update a user's role based on user_id
+// Update a user's role
 export const updateUserRole = async (req, res) => {
   try {
-    const { userId, role } = req.body; // role is passed in the request body
-    console.log( userId, role)
+    const { userId, role } = req.body;
+
     if (!userId || !role) {
       return res.status(400).json({ message: "User ID and role are required" });
     }
 
-    // Find the user by userId
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update the user's role
     user.role = role;
     await user.save();
 
-    // Send success response
     res.json({ message: "User role updated successfully", user });
   } catch (error) {
     console.error("Error updating user role:", error);
@@ -99,6 +99,78 @@ export const getAllUsers = async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Update user details
+// Update user details including role
+// Update user details by ID
+export const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;  // Get userId from route parameter
+    const { name, email, phone, address, landmark, role } = req.body; // Get other user details from request body
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user fields if provided
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+    if (landmark) user.landmark = landmark;
+    if (role) user.role = role;
+
+    // Save the updated user
+    await user.save();
+    res.json({ message: "User updated successfully", user });
+
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+
+// Delete user
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await user.deleteOne();
+    res.json({ message: "User deleted successfully" });
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+// Get user by ID
+export const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
